@@ -74,6 +74,7 @@ public class Customer {
 //    }
 
     public void showScoreHistorySortedByKey() {
+        System.out.println("version_key: score");
         keyScore.forEach((key, value) -> System.out.printf("%s: %d\n", key, value));
     }
 
