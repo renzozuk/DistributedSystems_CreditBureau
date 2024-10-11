@@ -1,8 +1,10 @@
 package br.ufrn.imd.model.entities;
 
+import java.util.Objects;
+
 public class VersionedKey implements Comparable<VersionedKey> {
-    private String key;
-    private long version;
+    private final String key;
+    private final long version;
 
     public VersionedKey(String key, long version) {
         this.key = key;
@@ -24,6 +26,18 @@ public class VersionedKey implements Comparable<VersionedKey> {
             return keyCompare;
         }
         return Long.compare(this.version, o.version);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof VersionedKey that)) return false;
+        return version == that.version;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(version);
     }
 
     @Override

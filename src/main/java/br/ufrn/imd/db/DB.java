@@ -3,26 +3,33 @@ package br.ufrn.imd.db;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
 public class DB {
-    private static Connection connection;
+    private static Connection conn;
 
     public static Connection getConnection() {
-        if (connection == null) {
+        if (conn == null) {
             try {
-
+                Properties props = loadProperties();
+                String url = props.getProperty("dburl");
+                conn = DriverManager.getConnection(url, props);
+            } catch (Exception e) {
+                throw new DbException(e.getMessage());
             }
         }
+
+        return conn;
     }
 
     public static void closeConnection() {
-        if (connection != null) {
+        if (conn != null) {
             try {
-                connection.close();
+                conn.close();
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
             }

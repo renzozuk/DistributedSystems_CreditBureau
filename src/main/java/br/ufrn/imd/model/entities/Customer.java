@@ -1,8 +1,9 @@
 package br.ufrn.imd.model.entities;
 
+import br.ufrn.imd.model.entities.enums.Status;
+
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -10,116 +11,105 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Customer {
     private final String id;
-    private final NavigableMap<VersionedKey, Integer> keyScore;
-    private int paymentHistoryScore;
-    private int creditUtilizationScore;
+    private final String ssn;
     private final LocalDate signupDate;
-    private int amountScore; // amount recently reported score
-    private int availableCreditScore;
+    private final NavigableMap<VersionedKey, Score> keyScore;
 
-    public Customer() {
-        this.id = UUID.randomUUID().toString();
+    public Customer(String ssn) {
+        if(ssn.length() != 9){
+            throw new IllegalArgumentException("Invalid SSN");
+        }
+
+        this.id = UUID.nameUUIDFromBytes(ssn.getBytes()).toString();
+        this.ssn = ssn;
         this.signupDate = LocalDate.now();
         this.keyScore = new ConcurrentSkipListMap<>();
-        this.paymentHistoryScore = 300;
-        this.creditUtilizationScore = 300;
-        this.amountScore = 300;
-        this.availableCreditScore = 300;
-        refreshKeyScore();
+//        refreshKeyScore(300, 300, 300, 300);
     }
 
-    public Customer(LocalDate signupDate) {
-        this.id = UUID.randomUUID().toString();
+    public Customer(String ssn, LocalDate signupDate) {
+        if(ssn.length() != 9){
+            throw new IllegalArgumentException("Invalid SSN");
+        }
+
+        this.id = UUID.nameUUIDFromBytes(ssn.getBytes()).toString();
+        this.ssn = ssn;
         this.signupDate = signupDate;
         this.keyScore = new ConcurrentSkipListMap<>();
-        this.paymentHistoryScore = 300;
-        this.creditUtilizationScore = 300;
-        this.amountScore = 300;
-        this.availableCreditScore = 300;
-        refreshKeyScore();
+//        refreshKeyScore(300, 300, 300, 300);
     }
 
-    public Customer(int paymentHistoryScore, int creditUtilizationScore, int amountScore, int availableCreditScore) {
-        this.id = UUID.randomUUID().toString();
-        this.signupDate = LocalDate.now();
-        this.keyScore = new ConcurrentSkipListMap<>();
-        this.paymentHistoryScore = Math.max(Math.min(paymentHistoryScore, 850), 300);
-        this.creditUtilizationScore = Math.max(Math.min(creditUtilizationScore, 850), 300);
-        this.amountScore = Math.max(Math.min(amountScore, 850), 300);
-        this.availableCreditScore = Math.max(Math.min(availableCreditScore, 850), 300);
-        refreshKeyScore();
+    public String getId() {
+        return id;
     }
 
-    public Customer(int paymentHistoryScore, int creditUtilizationScore, LocalDate signupDate, int amountScore, int availableCreditScore) {
-        this.id = UUID.randomUUID().toString();
-        this.keyScore = new ConcurrentSkipListMap<>();
-        this.paymentHistoryScore = Math.max(Math.min(paymentHistoryScore, 850), 300);
-        this.creditUtilizationScore = Math.max(Math.min(creditUtilizationScore, 850), 300);
-        this.signupDate = signupDate;
-        this.amountScore = Math.max(Math.min(amountScore, 850), 300);
-        this.availableCreditScore = Math.max(Math.min(availableCreditScore, 850), 300);
-        refreshKeyScore();
+    public String getSsn() {
+        return ssn;
     }
 
-//    public String getId() {
-//        return id;
-//    }
-//
-//    public Date getSignupDate() {
-//        return signupDate;
-//    }
+    public LocalDate getSignupDate() {
+        return signupDate;
+    }
 
-//    public Map<Long, Integer> getKeyScore() {
-//        return keyScore;
-//    }
-
-    public void showScoreHistorySortedByKey() {
+    public void showScoreHistory() {
+        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
         System.out.println("version_key: score");
-        keyScore.forEach((key, value) -> System.out.printf("%s: %d\n", key, value));
+        keyScore.forEach((key, value) -> System.out.printf("%s: [Score: %d (%s)]\n", key, value.getFinalScore(this), Status.fromScore(value.getFinalScore(this))));
+        System.out.println("==========================================");
     }
 
-//    public int getPaymentHistoryScore() {
-//        return paymentHistoryScore;
-//    }
-
-    public void setPaymentHistoryScore(int paymentHistoryScore) {
-        this.paymentHistoryScore = Math.max(Math.min(paymentHistoryScore, 850), 300);
-        refreshKeyScore();
+    public void showDetailedScoreHistory() {
+        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
+        System.out.println("version_key: score");
+        keyScore.forEach((key, value) -> System.out.printf("%s: [Payment History Score: %d] [Credit Utilization Score: %d] [Credit History Length Score: %d] [Amount Score: %d] [Available Credit Score: %d] [Score: %d (%s)]\n", key, value.getPaymentHistoryScore(), value.getCreditUtilizationScore(), value.getCreditHistoryLengthScore(this), value.getAmountScore(), value.getAvailableCreditScore(), value.getFinalScore(this), Status.fromScore(value.getFinalScore(this))));
+        System.out.println("==========================================");
     }
 
-//    public int getCreditUtilizationScore() {
-//        return creditUtilizationScore;
-//    }
-
-    public void setCreditUtilizationScore(int creditUtilizationScore) {
-        this.creditUtilizationScore = Math.max(Math.min(creditUtilizationScore, 850), 300);
-        refreshKeyScore();
+    public void showLastScore() {
+        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
+        System.out.println("version_key: score");
+        System.out.printf("%s: %d (%s)\n", keyScore.lastEntry().getKey(), keyScore.lastEntry().getValue().getFinalScore(this), Status.fromScore(keyScore.lastEntry().getValue().getFinalScore(this)));
+        System.out.println("==========================================");
     }
 
-    public int getCreditHistoryLengthScore() {
-        return (int) Math.max(Math.min(ChronoUnit.DAYS.between(signupDate, LocalDate.now()), 850), 300);
+    public void updatePaymentHistoryScore(int paymentHistoryScore) {
+        refreshKeyScore(paymentHistoryScore,
+                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
+                keyScore.lastEntry().getValue().getAmountScore(),
+                keyScore.lastEntry().getValue().getAvailableCreditScore());
     }
 
-//    public int getAmountScore() {
-//        return amountScore;
-//    }
-
-    public void setAmountScore(int amountScore) {
-        this.amountScore = Math.max(Math.min(amountScore, 850), 300);
-        refreshKeyScore();
+    public void updateCreditUtilizationScore(int creditUtilizationScore) {
+        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
+                creditUtilizationScore,
+                keyScore.lastEntry().getValue().getAmountScore(),
+                keyScore.lastEntry().getValue().getAvailableCreditScore());
     }
 
-//    public int getAvailableCreditScore() {
-//        return availableCreditScore;
-//    }
-
-    public void setAvailableCreditScore(int availableCreditScore) {
-        this.availableCreditScore = Math.max(Math.min(availableCreditScore, 850), 300);
-        refreshKeyScore();
+    public void updateAmountScore(int amountScore) {
+        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
+                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
+                amountScore,
+                keyScore.lastEntry().getValue().getAvailableCreditScore());
     }
 
-    private void refreshKeyScore() {
-        keyScore.put(new VersionedKey(Instant.now().toString(), keyScore.size() + 1), (int) Math.floor(0.4494 * paymentHistoryScore + 0.2247 * creditUtilizationScore + 0.236 * getCreditHistoryLengthScore() + 0.0562 * amountScore + 0.0337 * availableCreditScore));
+    public void updateAvailableCreditScore(int availableCreditScore) {
+        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
+                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
+                keyScore.lastEntry().getValue().getAmountScore(),
+                availableCreditScore);
+    }
+
+    public void updateAllScores(VersionedKey versionedKey, Score score) {
+        keyScore.put(versionedKey, score);
+    }
+
+    public void updateAllScores(NavigableMap<VersionedKey, Score> keyScore) {
+        this.keyScore.putAll(keyScore);
+    }
+
+    private void refreshKeyScore(int paymentHistoryScore, int creditUtilizationScore, int amountScore, int availableCreditScore) {
+        keyScore.put(new VersionedKey(Instant.now().toString(), keyScore.size() + 1), new Score(paymentHistoryScore, creditUtilizationScore, amountScore, availableCreditScore));
     }
 
     @Override
@@ -138,12 +128,8 @@ public class Customer {
     public String toString() {
         return "Customer{" +
                 "id='" + id + '\'' +
+                ", ssn='" + ssn + '\'' +
                 ", signupDate=" + signupDate +
-                ", paymentHistoryScore=" + paymentHistoryScore +
-                ", creditUtilizationScore=" + creditUtilizationScore +
-                ", creditHistoryLengthScore=" + getCreditHistoryLengthScore() +
-                ", amountScore=" + amountScore +
-                ", availableCreditScore=" + availableCreditScore +
                 '}';
     }
 }
