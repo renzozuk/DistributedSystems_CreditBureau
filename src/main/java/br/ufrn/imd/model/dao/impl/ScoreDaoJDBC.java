@@ -100,7 +100,39 @@ public class ScoreDaoJDBC implements ScoreDao {
 
         try {
             st = conn.prepareStatement("SELECT * FROM Scores "
-                    + "WHERE customer_id=?");
+                    + "WHERE customer_id=?"
+            );
+
+            st.setString(1, customer.getId());
+
+            rs = st.executeQuery();
+
+            NavigableMap<VersionedKey, Score> keyScore = new ConcurrentSkipListMap<>();
+
+            while(rs.next()){
+                keyScore.put(instantiateVersionedKey(rs), instantiateScore(rs));
+            }
+
+            return keyScore;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.closeStatement(st);
+        }
+    }
+
+    @Override
+    public NavigableMap<VersionedKey, Score> findLastScoreByCustomerSsn(String customerSsn) {
+        Customer customer = DaoFactory.createCustomerDao().findBySsn(customerSsn);
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = conn.prepareStatement("SELECT * FROM Scores "
+                    + "WHERE customer_id=? "
+                    + "ORDER BY version DESC "
+                    + "LIMIT 1"
+            );
 
             st.setString(1, customer.getId());
 
