@@ -24,7 +24,6 @@ public class Customer {
         this.ssn = ssn;
         this.signupDate = LocalDate.now();
         this.keyScore = new ConcurrentSkipListMap<>();
-//        refreshKeyScore(300, 300, 300, 300);
     }
 
     public Customer(String ssn, LocalDate signupDate) {
@@ -36,7 +35,6 @@ public class Customer {
         this.ssn = ssn;
         this.signupDate = signupDate;
         this.keyScore = new ConcurrentSkipListMap<>();
-//        refreshKeyScore(300, 300, 300, 300);
     }
 
     public String getId() {
@@ -126,10 +124,14 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
-                "id='" + id + '\'' +
-                ", ssn='" + ssn + '\'' +
-                ", signupDate=" + signupDate +
-                '}';
+        StringBuilder result = new StringBuilder();
+
+        result.append("ID: ").append(id).append("\n")
+                .append("SSN: ").append(ssn).append("\n")
+                .append("Signup date: ").append(signupDate).append("\n");
+
+        keyScore.forEach((key, value) -> result.append(key).append(": ").append(value.getFinalScore(this)).append("\n"));
+
+        return result.toString();
     }
 }

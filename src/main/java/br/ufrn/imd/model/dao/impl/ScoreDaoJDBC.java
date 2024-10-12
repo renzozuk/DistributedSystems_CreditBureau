@@ -8,11 +8,13 @@ import br.ufrn.imd.model.entities.Customer;
 import br.ufrn.imd.model.entities.Score;
 import br.ufrn.imd.model.entities.VersionedKey;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Instant;
-import java.util.List;
 import java.util.NavigableMap;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class ScoreDaoJDBC implements ScoreDao {
