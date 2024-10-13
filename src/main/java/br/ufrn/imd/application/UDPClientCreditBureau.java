@@ -8,20 +8,18 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 public class UDPClientCreditBureau {
-    public UDPClientCreditBureau() {
-        System.out.println("UDP client started.");
+    public UDPClientCreditBureau(int port) {
+        System.out.printf("UDP client connected on port %d.\n", port);
 
         Scanner sc = new Scanner(System.in);
 
-        try {
-            DatagramSocket clientSocket = new DatagramSocket();
-
+        try (DatagramSocket clientSocket = new DatagramSocket()) {
             InetAddress inetAddress = InetAddress.getByName("localhost");
 
             byte[] sendMessage;
 
             while (true) {
-                System.out.print("Enter a message: ");
+                System.out.print("Your command: ");
 
                 String message = sc.nextLine();
 
@@ -30,21 +28,29 @@ public class UDPClientCreditBureau {
                 }
 
                 sendMessage = message.getBytes();
-
-                DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, 8080);
-
+                DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, port);
                 clientSocket.send(sendPacket);
-            }
 
-            clientSocket.close();
+                byte[] receiveMessage = new byte[1024];
+                DatagramPacket receivePacket = new DatagramPacket(receiveMessage, receiveMessage.length);
+                clientSocket.receive(receivePacket);
+                System.out.println(new String(receivePacket.getData(), 0, receivePacket.getLength()));
+
+            }
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException ignored) {}
 
         System.out.println("UDP client terminating.");
+
+        sc.close();
     }
 
     public static void main(String[] args) {
-        new UDPClientCreditBureau();
+        if (args.length > 0) {
+            new UDPClientCreditBureau(Integer.parseInt(args[0]));
+        } else {
+            new UDPClientCreditBureau(8080);
+        }
     }
 }

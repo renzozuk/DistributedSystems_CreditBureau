@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerDaoJDBC implements CustomerDao {
-    private Connection conn;
+    private final Connection conn;
 
     public CustomerDaoJDBC(Connection conn) {
         this.conn = conn;
@@ -85,25 +85,27 @@ public class CustomerDaoJDBC implements CustomerDao {
     }
 
     @Override
-    public void deleteById(String id) {
+    public Customer findBySsn(String ssn) {
         PreparedStatement st = null;
+        ResultSet rs = null;
 
         try{
-            st = conn.prepareStatement("DELETE FROM Scores WHERE customer_id = ?");
+            st = conn.prepareStatement("SELECT * FROM Customers "
+                    + "WHERE ssn = ?");
 
-            st.setString(1, id);
+            st.setString(1, ssn);
+            rs = st.executeQuery();
 
-            st.executeUpdate();
+            if(rs.next()){
+                return instantiateCustomer(rs);
+            }
 
-            st = conn.prepareStatement("DELETE FROM Customers WHERE customer_id = ?");
-
-            st.setString(1, id);
-
-            st.executeUpdate();
-        }catch(SQLException e){
+            return null;
+        } catch(SQLException e) {
             throw new DbException(e.getMessage());
-        }finally{
+        } finally {
             DB.closeStatement(st);
+            DB.closeResultSet(rs);
         }
     }
 
@@ -128,56 +130,6 @@ public class CustomerDaoJDBC implements CustomerDao {
             throw new DbException(e.getMessage());
         }finally{
             DB.closeStatement(st);
-        }
-    }
-
-    @Override
-    public Customer findById(String id) {
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try{
-            st = conn.prepareStatement("SELECT * FROM Customers "
-                    + "WHERE customer_id = ?");
-
-            st.setString(1, id);
-            rs = st.executeQuery();
-
-            if(rs.next()){
-                return instantiateCustomer(rs);
-            }
-
-            return null;
-        }catch(SQLException e){
-            throw new DbException(e.getMessage());
-        }finally{
-            DB.closeStatement(st);
-            DB.closeResultSet(rs);
-        }
-    }
-
-    @Override
-    public Customer findBySsn(String ssn) {
-        PreparedStatement st = null;
-        ResultSet rs = null;
-
-        try{
-            st = conn.prepareStatement("SELECT * FROM Customers "
-                    + "WHERE ssn = ?");
-
-            st.setString(1, ssn);
-            rs = st.executeQuery();
-
-            if(rs.next()){
-                return instantiateCustomer(rs);
-            }
-
-            return null;
-        }catch(SQLException e){
-            throw new DbException(e.getMessage());
-        }finally{
-            DB.closeStatement(st);
-            DB.closeResultSet(rs);
         }
     }
 

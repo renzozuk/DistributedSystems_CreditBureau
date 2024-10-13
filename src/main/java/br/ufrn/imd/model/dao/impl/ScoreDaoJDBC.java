@@ -18,7 +18,7 @@ import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class ScoreDaoJDBC implements ScoreDao {
-    private Connection conn;
+    private final Connection conn;
 
     public ScoreDaoJDBC(Connection conn) {
         this.conn = conn;
@@ -38,58 +38,47 @@ public class ScoreDaoJDBC implements ScoreDao {
 
             rs = st.executeQuery();
 
-            long nextVersionNumber = 0L;
+            final NavigableMap<VersionedKey, Score> lastScore = findLastScoreByCustomerSsn(customerSsn);
 
-            if(rs.next()){
-                nextVersionNumber = rs.getLong(1);
-            }
+            if(lastScore.lastEntry().getValue().getPaymentHistoryScore() != score.getPaymentHistoryScore() ||
+                    lastScore.lastEntry().getValue().getCreditUtilizationScore() != score.getCreditUtilizationScore() ||
+                    lastScore.lastEntry().getValue().getAmountScore() != score.getAmountScore() ||
+                    lastScore.lastEntry().getValue().getAvailableCreditScore() != score.getAvailableCreditScore()
+            ) {
+                long nextVersionNumber = 0L;
 
-            st = conn.prepareStatement(
-                    "INSERT INTO Scores "
-                            + "VALUES "
-                            + "(?, ?, ?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS
-            );
+                if(rs.next()){
+                    nextVersionNumber = rs.getLong(1);
+                }
 
-            st.setString(1, customer.getId());
-            st.setLong(2, nextVersionNumber + 1);
-            st.setString(3, Instant.now().toString());
-            st.setInt(4, score.getPaymentHistoryScore());
-            st.setInt(5, score.getCreditUtilizationScore());
-            st.setInt(6, score.getAmountScore());
-            st.setInt(7, score.getAvailableCreditScore());
+                st = conn.prepareStatement(
+                        "INSERT INTO Scores "
+                                + "VALUES "
+                                + "(?, ?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS
+                );
 
-            int rowsAffected = st.executeUpdate();
+                st.setString(1, customer.getId());
+                st.setLong(2, nextVersionNumber + 1);
+                st.setString(3, Instant.now().toString());
+                st.setInt(4, score.getPaymentHistoryScore());
+                st.setInt(5, score.getCreditUtilizationScore());
+                st.setInt(6, score.getAmountScore());
+                st.setInt(7, score.getAvailableCreditScore());
 
-            if(rowsAffected > 0){
-                rs = st.getGeneratedKeys();
+                int rowsAffected = st.executeUpdate();
 
-                DB.closeResultSet(rs);
-            }else{
-                throw new DbException("Unexpected error! No rows affected!");
+                if(rowsAffected > 0){
+                    rs = st.getGeneratedKeys();
+
+                    DB.closeResultSet(rs);
+                }else{
+                    throw new DbException("Unexpected error! No rows affected!");
+                }
             }
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
         } finally {
-            DB.closeStatement(st);
-        }
-    }
-
-    @Override
-    public void delete(String customerSsn, long version) {
-        Customer customer = DaoFactory.createCustomerDao().findBySsn(customerSsn);
-        PreparedStatement st = null;
-
-        try{
-            st = conn.prepareStatement("DELETE FROM Scores WHERE customer_id = ? AND version = ?");
-
-            st.setString(1, customer.getId());
-            st.setLong(2, version);
-
-            st.executeUpdate();
-        }catch(SQLException e){
-            throw new DbException(e.getMessage());
-        }finally{
             DB.closeStatement(st);
         }
     }
@@ -150,6 +139,25 @@ public class ScoreDaoJDBC implements ScoreDao {
         } catch (SQLException e) {
             throw new DbException(e.getMessage());
         } finally {
+            DB.closeStatement(st);
+        }
+    }
+
+    @Override
+    public void delete(String customerSsn, long version) {
+        Customer customer = DaoFactory.createCustomerDao().findBySsn(customerSsn);
+        PreparedStatement st = null;
+
+        try{
+            st = conn.prepareStatement("DELETE FROM Scores WHERE customer_id = ? AND version = ?");
+
+            st.setString(1, customer.getId());
+            st.setLong(2, version);
+
+            st.executeUpdate();
+        }catch(SQLException e){
+            throw new DbException(e.getMessage());
+        }finally{
             DB.closeStatement(st);
         }
     }

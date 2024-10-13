@@ -10,8 +10,6 @@ public class Program {
         CustomerDao customerDao = DaoFactory.createCustomerDao();
         ScoreDao scoreDao = DaoFactory.createScoreDao();
 
-        Customer customer = customerDao.findBySsn("987654321");
-        customer.updateAllScores(scoreDao.findByCustomerSsn("987654321"));
-        customer.showDetailedScoreHistory();
+
     }
 }

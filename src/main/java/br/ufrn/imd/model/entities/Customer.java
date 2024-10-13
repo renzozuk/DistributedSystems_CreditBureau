@@ -2,7 +2,6 @@ package br.ufrn.imd.model.entities;
 
 import br.ufrn.imd.model.entities.enums.Status;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.NavigableMap;
 import java.util.Objects;
@@ -49,65 +48,12 @@ public class Customer {
         return signupDate;
     }
 
-    public void showScoreHistory() {
-        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
-        System.out.println("version_key: score");
-        keyScore.forEach((key, value) -> System.out.printf("%s: [Score: %d (%s)]\n", key, value.getFinalScore(this), Status.fromScore(value.getFinalScore(this))));
-        System.out.println("==========================================");
-    }
-
-    public void showDetailedScoreHistory() {
-        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
-        System.out.println("version_key: score");
-        keyScore.forEach((key, value) -> System.out.printf("%s: [Payment History Score: %d] [Credit Utilization Score: %d] [Credit History Length Score: %d] [Amount Score: %d] [Available Credit Score: %d] [Score: %d (%s)]\n", key, value.getPaymentHistoryScore(), value.getCreditUtilizationScore(), value.getCreditHistoryLengthScore(this), value.getAmountScore(), value.getAvailableCreditScore(), value.getFinalScore(this), Status.fromScore(value.getFinalScore(this))));
-        System.out.println("==========================================");
-    }
-
-    public void showLastScore() {
-        System.out.printf("==========================================\nSocial Security Number (SSN): %s\n\n", ssn);
-        System.out.println("version_key: score");
-        System.out.printf("%s: %d (%s)\n", keyScore.lastEntry().getKey(), keyScore.lastEntry().getValue().getFinalScore(this), Status.fromScore(keyScore.lastEntry().getValue().getFinalScore(this)));
-        System.out.println("==========================================");
-    }
-
-    public void updatePaymentHistoryScore(int paymentHistoryScore) {
-        refreshKeyScore(paymentHistoryScore,
-                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
-                keyScore.lastEntry().getValue().getAmountScore(),
-                keyScore.lastEntry().getValue().getAvailableCreditScore());
-    }
-
-    public void updateCreditUtilizationScore(int creditUtilizationScore) {
-        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
-                creditUtilizationScore,
-                keyScore.lastEntry().getValue().getAmountScore(),
-                keyScore.lastEntry().getValue().getAvailableCreditScore());
-    }
-
-    public void updateAmountScore(int amountScore) {
-        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
-                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
-                amountScore,
-                keyScore.lastEntry().getValue().getAvailableCreditScore());
-    }
-
-    public void updateAvailableCreditScore(int availableCreditScore) {
-        refreshKeyScore(keyScore.lastEntry().getValue().getPaymentHistoryScore(),
-                keyScore.lastEntry().getValue().getCreditUtilizationScore(),
-                keyScore.lastEntry().getValue().getAmountScore(),
-                availableCreditScore);
-    }
-
-    public void updateAllScores(VersionedKey versionedKey, Score score) {
+    public void updateScores(VersionedKey versionedKey, Score score) {
         keyScore.put(versionedKey, score);
     }
 
     public void updateAllScores(NavigableMap<VersionedKey, Score> keyScore) {
         this.keyScore.putAll(keyScore);
-    }
-
-    private void refreshKeyScore(int paymentHistoryScore, int creditUtilizationScore, int amountScore, int availableCreditScore) {
-        keyScore.put(new VersionedKey(Instant.now().toString(), keyScore.size() + 1), new Score(paymentHistoryScore, creditUtilizationScore, amountScore, availableCreditScore));
     }
 
     @Override
@@ -124,13 +70,36 @@ public class Customer {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder("========================================\n");
 
         result.append("ID: ").append(id).append("\n")
                 .append("SSN: ").append(ssn).append("\n")
                 .append("Signup date: ").append(signupDate).append("\n");
 
-        keyScore.forEach((key, value) -> result.append(key).append(": ").append(value.getFinalScore(this)).append("\n"));
+        keyScore.forEach((key, value) -> result.append(key).append(": ")
+                .append("[Score: ").append(value.getFinalScore(this)).append(" (").append(Status.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
+
+        result.append("========================================\n");
+
+        return result.toString();
+    }
+
+    public String getDetailedReport() {
+        StringBuilder result = new StringBuilder("========================================\n");
+
+        result.append("ID: ").append(id).append("\n")
+                .append("SSN: ").append(ssn).append("\n")
+                .append("Signup date: ").append(signupDate).append("\n");
+
+        keyScore.forEach((key, value) -> result.append(key).append(": ")
+                .append("[Payment History Score: ").append(value.getPaymentHistoryScore()).append("] ")
+                .append("[Credit Utilization Score: ").append(value.getCreditUtilizationScore()).append("] ")
+                .append("[Credit History Length Score: ").append(value.getCreditHistoryLengthScore(this)).append("] ")
+                .append("[Amount Score: ").append(value.getAmountScore()).append("] ")
+                .append("[Available Credit Score: ").append(value.getAvailableCreditScore()).append("] ")
+                .append("[Final Score: ").append(value.getFinalScore(this)).append(" (").append(Status.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
+
+        result.append("========================================\n");
 
         return result.toString();
     }

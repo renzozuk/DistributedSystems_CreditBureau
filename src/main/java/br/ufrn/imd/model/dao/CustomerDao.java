@@ -8,9 +8,7 @@ import java.util.List;
 public interface CustomerDao {
     void insert(Customer customer);
     void insert(Customer customer, Score score);
-    void deleteById(String id);
+    Customer findBySsn(String ssn);
     void deleteBySsn(String ssn);
-    Customer findById(String id);
-    Customer findBySsn(String id);
     List<Customer> findAll();
 }
