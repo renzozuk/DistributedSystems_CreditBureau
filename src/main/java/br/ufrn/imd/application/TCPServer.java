@@ -9,8 +9,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServerCreditBureau {
-    public TCPServerCreditBureau(int port) {
+public class TCPServer {
+    public TCPServer(int port) {
         try (ServerSocket serverSocket = new ServerSocket()) {
             serverSocket.bind(new InetSocketAddress("localhost", port));
 
@@ -42,9 +42,9 @@ public class TCPServerCreditBureau {
 
     public static void main(String[] args) {
         if (args.length > 0) {
-            new TCPServerCreditBureau(Integer.parseInt(args[0]));
+            new TCPServer(Integer.parseInt(args[0]));
         } else {
-            new TCPServerCreditBureau(8080);
+            new TCPServer(8080);
         }
     }
 }

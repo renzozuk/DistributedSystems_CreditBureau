@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 
-public class UDPClientCreditBureau {
-    public UDPClientCreditBureau(int port) {
+public class UDPClient {
+    public UDPClient(int port) {
         System.out.printf("UDP client connected on port %d.\n", port);
 
         Scanner sc = new Scanner(System.in);
@@ -48,9 +48,9 @@ public class UDPClientCreditBureau {
 
     public static void main(String[] args) {
         if (args.length > 0) {
-            new UDPClientCreditBureau(Integer.parseInt(args[0]));
+            new UDPClient(Integer.parseInt(args[0]));
         } else {
-            new UDPClientCreditBureau(8080);
+            new UDPClient(8080);
         }
     }
 }

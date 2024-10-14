@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class TCPClientCreditBureau {
-    public TCPClientCreditBureau(int port) {
+public class TCPClient {
+    public TCPClient(int port) {
         Scanner sc = new Scanner(System.in);
 
         try (Socket socket = new Socket("localhost", port)) {
@@ -39,9 +39,9 @@ public class TCPClientCreditBureau {
 
     public static void main(String[] args) {
         if (args.length > 0) {
-            new TCPClientCreditBureau(Integer.parseInt(args[0]));
+            new TCPClient(Integer.parseInt(args[0]));
         } else {
-            new TCPClientCreditBureau(8080);
+            new TCPClient(8080);
         }
     }
 }

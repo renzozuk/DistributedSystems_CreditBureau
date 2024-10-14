@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServerCreditBureau {
-    public UDPServerCreditBureau(int port) {
+public class UDPServer {
+    public UDPServer(int port) {
         System.out.printf("UDP server started on port %d.\n", port);
 
         try (DatagramSocket serverSocket = new DatagramSocket(port)) {
@@ -35,9 +35,9 @@ public class UDPServerCreditBureau {
 
     public static void main(String[] args) {
         if (args.length > 0) {
-            new UDPServerCreditBureau(Integer.parseInt(args[0]));
+            new UDPServer(Integer.parseInt(args[0]));
         } else {
-            new UDPServerCreditBureau(8080);
+            new UDPServer(8080);
         }
     }
 }
