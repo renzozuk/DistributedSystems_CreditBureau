@@ -12,7 +12,7 @@ public class TCPClient {
 
         try (Socket socket = new Socket("localhost", port)) {
             while (true) {
-                System.out.println("Your command: ");
+                System.out.print("Your command: ");
 
                 OutputStream outputStream = socket.getOutputStream();
 

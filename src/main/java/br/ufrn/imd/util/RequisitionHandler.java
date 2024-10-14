@@ -44,7 +44,7 @@ public class RequisitionHandler {
             case "get":
                 try {
                     Customer customer = customerDao.findBySsn(tokens.get(1).trim());
-                    customer.updateAllScores(scoreDao.findByCustomerSsn(tokens.get(1).trim()));
+                    customer.updateScores(scoreDao.findByCustomerSsn(tokens.get(1).trim()));
                     return customer.toString();
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";
@@ -52,7 +52,7 @@ public class RequisitionHandler {
             case "getdetailed", "get_detailed":
                 try {
                     Customer customer = customerDao.findBySsn(tokens.get(1).trim());
-                    customer.updateAllScores(scoreDao.findByCustomerSsn(tokens.get(1).trim()));
+                    customer.updateScores(scoreDao.findByCustomerSsn(tokens.get(1).trim()));
                     return customer.getDetailedReport();
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";
@@ -60,7 +60,7 @@ public class RequisitionHandler {
             case "getlast", "get_last":
                 try {
                     Customer customer = customerDao.findBySsn(tokens.get(1).trim());
-                    customer.updateAllScores(scoreDao.findLastScoreByCustomerSsn(tokens.get(1).trim()));
+                    customer.updateScores(scoreDao.findLastScoreByCustomerSsn(tokens.get(1).trim()));
                     return customer.toString();
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";
@@ -68,7 +68,7 @@ public class RequisitionHandler {
             case "getdetailedlast", "get_detailed_last":
                 try {
                     Customer customer = customerDao.findBySsn(tokens.get(1).trim());
-                    customer.updateAllScores(scoreDao.findLastScoreByCustomerSsn(tokens.get(1).trim()));
+                    customer.updateScores(scoreDao.findLastScoreByCustomerSsn(tokens.get(1).trim()));
                     return customer.getDetailedReport();
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";

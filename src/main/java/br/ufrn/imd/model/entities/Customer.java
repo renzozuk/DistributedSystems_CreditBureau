@@ -52,7 +52,7 @@ public class Customer {
         keyScore.put(versionedKey, score);
     }
 
-    public void updateAllScores(NavigableMap<VersionedKey, Score> keyScore) {
+    public void updateScores(NavigableMap<VersionedKey, Score> keyScore) {
         this.keyScore.putAll(keyScore);
     }
 
