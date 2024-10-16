@@ -2,41 +2,42 @@ package br.ufrn.imd.application;
 
 import br.ufrn.imd.util.RequisitionHandler;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServer {
+public class TCPServer implements Gateway {
     public TCPServer(int port) {
-        try (ServerSocket serverSocket = new ServerSocket()) {
-            serverSocket.bind(new InetSocketAddress("localhost", port));
-
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.printf("TCP server started on port %d.\n", port);
 
             while (true) {
-                Socket socket = serverSocket.accept();
+                try (Socket socket = serverSocket.accept();
+                     BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                     PrintWriter outputStream = new PrintWriter(socket.getOutputStream(), true)) {
 
-                InputStream inputStream = socket.getInputStream();
-                OutputStream outputStream = socket.getOutputStream();
+                    String message;
+                    while ((message = inputStream.readLine()) != null) {
+                        System.out.println("Received: " + message);
 
-                byte[] buffer = new byte[1024];
-                int bytesRead = inputStream.read(buffer);
-                String message = new String(buffer, 0, bytesRead);
+                        if (message.startsWith("quit")) {
+                            System.out.println("Client requested to quit.");
+                            break;
+                        }
 
-                String reply = RequisitionHandler.processRequisition(message);
+                        String reply = RequisitionHandler.processRequisition(message);
+                        outputStream.println(reply);
+                    }
 
-                outputStream.write(reply.getBytes());
-                outputStream.flush();
-
-                outputStream.close();
-                inputStream.close();
-                socket.close();
+                } catch (IOException e) {
+                    System.err.println("Error handling client connection: " + e.getMessage());
+                }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not start server: " + e.getMessage(), e);
         }
     }
 
@@ -46,5 +47,10 @@ public class TCPServer {
         } else {
             new TCPServer(8080);
         }
+    }
+
+    @Override
+    public void execute() {
+
     }
 }

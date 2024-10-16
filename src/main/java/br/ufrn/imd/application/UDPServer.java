@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServer {
+public class UDPServer implements Gateway {
     public UDPServer(int port) {
         System.out.printf("UDP server started on port %d.\n", port);
 
@@ -39,5 +39,10 @@ public class UDPServer {
         } else {
             new UDPServer(8080);
         }
+    }
+
+    @Override
+    public void execute() {
+
     }
 }

@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class WebServer {
-    public WebServer(int port) {
+public class HTTPServer implements Gateway {
+    public HTTPServer(int port) {
         System.out.println("Webserver started.");
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
@@ -20,9 +20,14 @@ public class WebServer {
     }
     public static void main(String[] args) {
         if (args.length > 0) {
-            new WebServer(Integer.parseInt(args[0]));
+            new HTTPServer(Integer.parseInt(args[0]));
         } else {
-            new WebServer(8080);
+            new HTTPServer(8080);
         }
+    }
+
+    @Override
+    public void execute() {
+
     }
 }

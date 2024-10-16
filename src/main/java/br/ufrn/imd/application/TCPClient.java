@@ -1,40 +1,40 @@
 package br.ufrn.imd.application;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class TCPClient {
     public TCPClient(int port) {
-        Scanner sc = new Scanner(System.in);
+        try (Socket socket = new Socket("localhost", port);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             Scanner sc = new Scanner(System.in)) {
 
-        try (Socket socket = new Socket("localhost", port)) {
             while (true) {
                 System.out.print("Your command: ");
-
-                OutputStream outputStream = socket.getOutputStream();
-
                 String message = sc.nextLine();
 
-                if("quit".equalsIgnoreCase(message)){
+                if ("quit".equalsIgnoreCase(message)) {
                     break;
                 }
-                outputStream.write(message.getBytes());
 
-                InputStream inputStream = socket.getInputStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead = inputStream.read(buffer);
-                String reply = new String(buffer, 0, bytesRead);
+                out.println(message);
 
-                System.out.println(reply);
+                String line;
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
+                    if (line.isEmpty()) {
+                        break;
+                    }
+                }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error communicating with the server: " + e.getMessage());
         }
-
-        sc.close();
     }
 
     public static void main(String[] args) {
