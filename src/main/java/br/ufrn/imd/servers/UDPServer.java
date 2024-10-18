@@ -1,4 +1,4 @@
-package br.ufrn.imd.application;
+package br.ufrn.imd.servers;
 
 import br.ufrn.imd.util.RequisitionHandler;
 
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServer implements Gateway {
+public class UDPServer {
     public UDPServer(int port) {
         System.out.printf("UDP server started on port %d.\n", port);
 
@@ -39,10 +39,5 @@ public class UDPServer implements Gateway {
         } else {
             new UDPServer(8080);
         }
-    }
-
-    @Override
-    public void execute() {
-
     }
 }

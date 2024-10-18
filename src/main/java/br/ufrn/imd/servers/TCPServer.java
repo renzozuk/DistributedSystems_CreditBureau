@@ -1,4 +1,4 @@
-package br.ufrn.imd.application;
+package br.ufrn.imd.servers;
 
 import br.ufrn.imd.util.RequisitionHandler;
 
@@ -9,27 +9,26 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServer implements Gateway {
+public class TCPServer {
     public TCPServer(int port) {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.printf("TCP server started on port %d.\n", port);
 
             while (true) {
                 try (Socket socket = serverSocket.accept();
-                     BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                     PrintWriter outputStream = new PrintWriter(socket.getOutputStream(), true)) {
+                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                     PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
                     String message;
-                    while ((message = inputStream.readLine()) != null) {
+                    while ((message = in.readLine()) != null) {
                         System.out.println("Received: " + message);
 
                         if (message.startsWith("quit")) {
-                            System.out.println("Client requested to quit.");
                             break;
                         }
 
                         String reply = RequisitionHandler.processRequisition(message);
-                        outputStream.println(reply);
+                        out.println(reply);
                     }
 
                 } catch (IOException e) {
@@ -47,10 +46,5 @@ public class TCPServer implements Gateway {
         } else {
             new TCPServer(8080);
         }
-    }
-
-    @Override
-    public void execute() {
-
     }
 }

@@ -1,4 +1,4 @@
-package br.ufrn.imd.application;
+package br.ufrn.imd.gateway;
 
 public interface Gateway {
     void execute();

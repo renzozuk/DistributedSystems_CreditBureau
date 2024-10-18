@@ -1,4 +1,4 @@
-package br.ufrn.imd.application;
+package br.ufrn.imd.clients;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

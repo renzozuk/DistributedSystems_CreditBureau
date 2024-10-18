@@ -1,4 +1,4 @@
-package br.ufrn.imd.application;
+package br.ufrn.imd.servers;
 
 import br.ufrn.imd.util.ClientHandler;
 
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class HTTPServer implements Gateway {
+public class HTTPServer {
     public HTTPServer(int port) {
         System.out.println("Webserver started.");
         try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -24,10 +24,5 @@ public class HTTPServer implements Gateway {
         } else {
             new HTTPServer(8080);
         }
-    }
-
-    @Override
-    public void execute() {
-
     }
 }
