@@ -7,8 +7,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 
-public class UDPClient {
+public class UDPClient extends Client {
     public UDPClient(int port) {
+        super(port);
+
         System.out.printf("UDP client connected on port %d.\n", port);
 
         Scanner sc = new Scanner(System.in);

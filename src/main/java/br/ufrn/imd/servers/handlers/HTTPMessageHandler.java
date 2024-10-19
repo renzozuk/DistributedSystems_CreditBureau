@@ -1,4 +1,4 @@
-package br.ufrn.imd.util;
+package br.ufrn.imd.servers.handlers;
 
 import br.ufrn.imd.db.DbException;
 import br.ufrn.imd.model.dao.CustomerDao;
@@ -16,20 +16,20 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.StringTokenizer;
 
-public class ClientHandler implements Runnable {
+public class HTTPMessageHandler implements Runnable {
     private final Socket socket;
     private final CustomerDao customerDao = DaoFactory.createCustomerDao();
     private final ScoreDao scoreDao = DaoFactory.createScoreDao();
 
-    public ClientHandler(Socket socket) {
+    public HTTPMessageHandler(Socket socket) {
         this.socket = socket;
     }
 
     @Override
     public void run() {
-        System.out.println("\nClientHandler Started for " + this.socket);
+        System.out.println("\nHTTP Message Handler Started for " + this.socket);
         handleRequest(this.socket);
-        System.out.println("ClientHandler Terminated for " + this.socket + "\n");
+        System.out.println("HTTP Message Handler Terminated for " + this.socket + "\n");
     }
 
     public void handleRequest(Socket socket) {
@@ -90,7 +90,7 @@ public class ClientHandler implements Runnable {
                     sendResponse(socket, 400, "The score should be an integer.");
                 }
             } else if (httpMethod.equals("DELETE")) {
-                System.out.println("Put method processed");
+                System.out.println("Delete method processed");
                 String httpQueryString = tokenizer.nextToken();
                 String[] queryParameters = httpQueryString.split("/");
 
@@ -106,6 +106,12 @@ public class ClientHandler implements Runnable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        try {
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

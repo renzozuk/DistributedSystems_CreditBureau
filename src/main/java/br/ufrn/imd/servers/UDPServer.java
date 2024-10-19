@@ -1,16 +1,21 @@
 package br.ufrn.imd.servers;
 
-import br.ufrn.imd.util.RequisitionHandler;
+import br.ufrn.imd.servers.handlers.UDPMessageHandler;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class UDPServer {
+public class UDPServer extends Server {
     public UDPServer(int port) {
-        System.out.printf("UDP server started on port %d.\n", port);
+        super(port);
+    }
 
-        try (DatagramSocket serverSocket = new DatagramSocket(port)) {
+    @Override
+    public void startServer() {
+        System.out.printf("UDP server started on port %d.\n", super.getPort());
+
+        try (DatagramSocket serverSocket = new DatagramSocket(super.getPort())) {
             while (true) {
                 byte[] receiveMessage = new byte[1024];
 
@@ -18,9 +23,7 @@ public class UDPServer {
 
                 serverSocket.receive(receivePacket);
 
-                String message = new String(receivePacket.getData());
-
-                String reply = RequisitionHandler.processRequisition(message);
+                String reply = UDPMessageHandler.handleRequest(new String(receivePacket.getData()));
 
                 byte[] replyMessage = reply.getBytes();
 
@@ -30,14 +33,6 @@ public class UDPServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            new UDPServer(Integer.parseInt(args[0]));
-        } else {
-            new UDPServer(8080);
         }
     }
 }

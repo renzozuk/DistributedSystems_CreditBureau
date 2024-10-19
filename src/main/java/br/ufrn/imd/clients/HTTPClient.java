@@ -7,9 +7,12 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class HTTPClient {
+public class HTTPClient extends Client {
     public HTTPClient(int port) {
+        super(port);
+
         System.out.println("HTTP Client Started");
+
         try {
             InetAddress serverInetAddress = InetAddress.getByName("localhost");
             Socket connection = new Socket(serverInetAddress, port);

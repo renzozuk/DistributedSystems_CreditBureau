@@ -1,4 +1,4 @@
-package br.ufrn.imd.util;
+package br.ufrn.imd.servers.handlers;
 
 import br.ufrn.imd.db.DbException;
 import br.ufrn.imd.model.dao.CustomerDao;
@@ -8,24 +8,13 @@ import br.ufrn.imd.model.entities.Customer;
 import br.ufrn.imd.model.entities.Score;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.stream.IntStream;
 
 public class RequisitionHandler {
     private static final CustomerDao customerDao = DaoFactory.createCustomerDao();
     private static final ScoreDao scoreDao = DaoFactory.createScoreDao();
 
-    public static String processRequisition(String message) {
-        StringTokenizer tokenizer = new StringTokenizer(message, ";");
-
-        List<String> tokens = new ArrayList<>();
-
-        while (tokenizer.hasMoreTokens()) {
-            IntStream.range(0, tokenizer.countTokens()).forEach(i -> tokens.add(tokenizer.nextToken()));
-        }
-
+    public static String processRequisition(List<String> tokens) {
         switch (tokens.get(0).trim().toLowerCase()) {
             case "create", "post":
                 try {
@@ -73,11 +62,6 @@ public class RequisitionHandler {
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";
                 }
-            case "delete":
-                try {
-                    customerDao.deleteBySsn(tokens.get(1).trim());
-                    return String.format("User [SSN: %s] deleted successfully.\n", tokens.get(1).trim());
-                } catch (NullPointerException ignored) {}
             case "updatescore", "update_score":
                 try {
                     scoreDao.insert(tokens.get(1).trim(), new Score(Integer.parseInt(tokens.get(2).trim()),
@@ -88,8 +72,14 @@ public class RequisitionHandler {
                 } catch (NullPointerException e) {
                     return "It wasn't possible to find a user with the typed SSN.\n";
                 }
-        }
+            case "delete":
+                try {
+                    customerDao.deleteBySsn(tokens.get(1).trim());
+                    return String.format("User [SSN: %s] deleted successfully.\n", tokens.get(1).trim());
+                } catch (NullPointerException ignored) {}
+            default:
+                return "Invalid request.";
 
-        return "";
+        }
     }
 }
