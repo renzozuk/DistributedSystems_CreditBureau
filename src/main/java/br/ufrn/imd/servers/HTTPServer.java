@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class HTTPServer extends Server {
     public HTTPServer(int port) {
-        super(port);
+        this("localhost", port);
     }
 
     public HTTPServer(String address, int port) {

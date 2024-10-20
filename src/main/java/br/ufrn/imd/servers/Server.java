@@ -11,8 +11,7 @@ public abstract class Server extends Thread {
     private final int port;
 
     public Server(int port) {
-        this.address = "localhost";
-        this.port = port;
+        this("localhost", port);
     }
 
     public Server(String address, int port) {

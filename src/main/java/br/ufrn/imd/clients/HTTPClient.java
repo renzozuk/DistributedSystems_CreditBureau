@@ -10,12 +10,19 @@ import java.net.Socket;
 public class HTTPClient extends Client {
     public HTTPClient(int port) {
         super(port);
+    }
 
-        System.out.println("HTTP Client Started");
+    public HTTPClient(String address, int port) {
+        super(address, port);
+    }
+
+    @Override
+    public void startClient() {
+        System.out.printf("HTTP Client started on port %d.", super.getPort());
 
         try {
             InetAddress serverInetAddress = InetAddress.getByName("localhost");
-            Socket connection = new Socket(serverInetAddress, port);
+            Socket connection = new Socket(serverInetAddress, super.getPort());
             try (OutputStream out = connection.getOutputStream();
                  BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                 sendGet(out);
@@ -23,14 +30,6 @@ public class HTTPClient extends Client {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            new HTTPClient(Integer.parseInt(args[0]));
-        } else {
-            new HTTPClient(8080);
         }
     }
 

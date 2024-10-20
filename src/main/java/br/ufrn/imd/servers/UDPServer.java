@@ -8,11 +8,15 @@ import java.net.DatagramSocket;
 
 public class UDPServer extends Server {
     public UDPServer(int port) {
-        super(port);
+        this("localhost", port);
     }
 
     public UDPServer(String address, int port) {
         super(address, port);
+
+        if (port != 8080 && (port < 9001 || port > 10000)) {
+            throw new IllegalArgumentException("Invalid port number. The port number must be between 9001 and 10000.");
+        }
     }
 
     @Override

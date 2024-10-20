@@ -10,13 +10,20 @@ import java.util.Scanner;
 public class UDPClient extends Client {
     public UDPClient(int port) {
         super(port);
+    }
 
-        System.out.printf("UDP client connected on port %d.\n", port);
+    public UDPClient(String address, int port) {
+        super(address, port);
+    }
+
+    @Override
+    public void startClient() {
+        System.out.printf("UDP client connected on port %d.\n", super.getPort());
 
         Scanner sc = new Scanner(System.in);
 
         try (DatagramSocket clientSocket = new DatagramSocket()) {
-            InetAddress inetAddress = InetAddress.getByName("localhost");
+            InetAddress inetAddress = InetAddress.getByName(super.getAddress());
 
             byte[] sendMessage;
 
@@ -30,7 +37,7 @@ public class UDPClient extends Client {
                 }
 
                 sendMessage = message.getBytes();
-                DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, port);
+                DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, super.getPort());
                 clientSocket.send(sendPacket);
 
                 byte[] receiveMessage = new byte[1024];
@@ -66,13 +73,5 @@ public class UDPClient extends Client {
         } catch (IOException ignored) {}
 
         return "";
-    }
-
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            new UDPClient(Integer.parseInt(args[0]));
-        } else {
-            new UDPClient(8080);
-        }
     }
 }

@@ -8,7 +8,7 @@ import java.net.Socket;
 
 public class TCPServer extends Server {
     public TCPServer(int port) {
-        super(port);
+        this("localhost", port);
     }
 
     public TCPServer(String address, int port) {

@@ -15,10 +15,10 @@ public class Heartbeat {
     private static final String HEARTBEAT_MESSAGE = "Are you alive?";
     private static final int TIMEOUT = 2000;
 
-    public static void refreshServers(Set<Server> servers) {
+    public static void refreshServers(Set<Server> servers, int quantity) {
         servers.removeIf(server -> !sendHeartbeat(server.getPort()).equals("Yes, I'm alive!"));
 
-        IntStream.range(9001, 9012).forEach(i -> {
+        IntStream.range(9001, 9001 + quantity).forEach(i -> {
             if (sendHeartbeat(i).equals("Yes, I'm alive!")) {
                 servers.add(new UDPServer(i));
             }
@@ -38,7 +38,7 @@ public class Heartbeat {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, port);
                     socket.send(packet);
 
-                    socket.setSoTimeout(TIMEOUT);
+                    socket.setSoTimeout(5);
                     byte[] responseBuffer = new byte[1024];
                     DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
 

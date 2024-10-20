@@ -10,8 +10,15 @@ import java.util.Scanner;
 public class TCPClient extends Client {
     public TCPClient(int port) {
         super(port);
+    }
 
-        try (Socket socket = new Socket("localhost", port);
+    public TCPClient(String address, int port) {
+        super(address, port);
+    }
+
+    @Override
+    public void startClient() {
+        try (Socket socket = new Socket(super.getAddress(), super.getPort());
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              Scanner sc = new Scanner(System.in)) {
@@ -36,14 +43,6 @@ public class TCPClient extends Client {
             }
         } catch (IOException e) {
             System.err.println("Error communicating with the server: " + e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) {
-        if (args.length > 0) {
-            new TCPClient(Integer.parseInt(args[0]));
-        } else {
-            new TCPClient(8080);
         }
     }
 }
