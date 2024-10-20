@@ -8,20 +8,21 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.time.Instant;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public class Heartbeat {
     private static final String HEARTBEAT_MESSAGE = "Are you alive?";
     private static final int TIMEOUT = 2000;
 
-    public static void refreshServers(Map<Server, Instant> servers) {
-        for (Server server : servers.keySet()) {
-            if (!sendHeartbeat(server.getPort()).equals("Yes, I'm alive!")) {
-                servers.remove(server);
+    public static void refreshServers(Set<Server> servers) {
+        servers.removeIf(server -> !sendHeartbeat(server.getPort()).equals("Yes, I'm alive!"));
+
+        IntStream.range(9001, 9012).forEach(i -> {
+            if (sendHeartbeat(i).equals("Yes, I'm alive!")) {
+                servers.add(new UDPServer(i));
             }
-        }
+        });
     }
 
     public static String sendHeartbeat(int port) {
