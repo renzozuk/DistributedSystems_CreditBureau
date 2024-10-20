@@ -1,7 +1,7 @@
 package br.ufrn.imd.model.dao;
 
 import br.ufrn.imd.model.entities.Score;
-import br.ufrn.imd.model.entities.VersionedKey;
+import br.ufrn.imd.patterns.VersionedKey;
 
 import java.util.NavigableMap;
 

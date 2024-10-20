@@ -1,4 +1,4 @@
-package br.ufrn.imd.model.entities;
+package br.ufrn.imd.patterns;
 
 import java.util.Objects;
 

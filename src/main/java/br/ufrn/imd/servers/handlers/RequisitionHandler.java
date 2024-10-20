@@ -16,20 +16,8 @@ public class RequisitionHandler {
 
     public static String processRequisition(List<String> tokens) {
         switch (tokens.get(0).trim().toLowerCase()) {
-            case "create", "post":
-                try {
-                    if (tokens.size() >= 3) {
-                        customerDao.insert(new Customer(tokens.get(1).trim(), LocalDate.parse(tokens.get(2).trim())));
-                    } else {
-                        customerDao.insert(new Customer(tokens.get(1).trim()));
-                    }
-
-                    return String.format("An account [SSN: %s] was created successfully.\n", tokens.get(1));
-                } catch (DbException e) {
-                    return String.format("It wasn't possible to create an account [SSN: %s]. Please, check if there's already an account with that SSN.\n", tokens.get(1));
-                } catch (IllegalArgumentException e) {
-                    return  "The SSN is invalid.\n";
-                }
+            case "are you alive?":
+                return "Yes, I'm alive!";
             case "get":
                 try {
                     Customer customer = customerDao.findBySsn(tokens.get(1).trim());
@@ -61,6 +49,20 @@ public class RequisitionHandler {
                     return customer.getDetailedReport();
                 } catch (NullPointerException e) {
                     return  "It wasn't possible to find a user with the typed SSN.\n";
+                }
+            case "create", "post":
+                try {
+                    if (tokens.size() >= 3) {
+                        customerDao.insert(new Customer(tokens.get(1).trim(), LocalDate.parse(tokens.get(2).trim())));
+                    } else {
+                        customerDao.insert(new Customer(tokens.get(1).trim()));
+                    }
+
+                    return String.format("An account [SSN: %s] was created successfully.\n", tokens.get(1));
+                } catch (DbException e) {
+                    return String.format("It wasn't possible to create an account [SSN: %s]. Please, check if there's already an account with that SSN.\n", tokens.get(1));
+                } catch (IllegalArgumentException e) {
+                    return  "The SSN is invalid.\n";
                 }
             case "updatescore", "update_score":
                 try {

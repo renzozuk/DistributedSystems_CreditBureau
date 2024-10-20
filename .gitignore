@@ -37,4 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store
 
-src/main/java/br/ufrn/imd/aplication/*
+src/main/java/br/ufrn/imd/application/*

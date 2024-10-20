@@ -48,6 +48,26 @@ public class UDPClient extends Client {
         sc.close();
     }
 
+    public static String sendMessage(int port, String message) {
+        try (DatagramSocket clientSocket = new DatagramSocket()) {
+            InetAddress inetAddress = InetAddress.getByName("localhost");
+
+            byte[] sendMessage = message.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, port);
+            clientSocket.send(sendPacket);
+
+            byte[] receiveMessage = new byte[1024];
+            DatagramPacket receivePacket = new DatagramPacket(receiveMessage, receiveMessage.length);
+            clientSocket.receive(receivePacket);
+
+            return new String(receivePacket.getData(), 0, receivePacket.getLength());
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException ignored) {}
+
+        return "";
+    }
+
     public static void main(String[] args) {
         if (args.length > 0) {
             new UDPClient(Integer.parseInt(args[0]));

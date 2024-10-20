@@ -11,6 +11,10 @@ public class UDPServer extends Server {
         super(port);
     }
 
+    public UDPServer(String address, int port) {
+        super(address, port);
+    }
+
     @Override
     public void startServer() {
         System.out.printf("UDP server started on port %d.\n", super.getPort());

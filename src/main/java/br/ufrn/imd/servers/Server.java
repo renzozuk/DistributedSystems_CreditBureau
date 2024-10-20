@@ -1,22 +1,34 @@
 package br.ufrn.imd.servers;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class Server extends Thread {
     private ExecutorService executorService;
+    private final String address;
     private final int port;
 
     public Server(int port) {
+        this.address = "localhost";
         this.port = port;
+    }
+
+    public Server(String address, int port) {
+        this.address = address;
+        this.port = port;
+    }
+
+    public String getAddress() {
+        return address;
     }
 
     public int getPort() {
         return port;
     }
 
-    public abstract void startServer();
+    public abstract void startServer() throws IOException;
 
     @Override
     public void run() {
@@ -24,7 +36,11 @@ public abstract class Server extends Thread {
             executorService = Executors.newVirtualThreadPerTaskExecutor();
         }
 
-        startServer();
+        try {
+            startServer();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         executorService.shutdown();
     }

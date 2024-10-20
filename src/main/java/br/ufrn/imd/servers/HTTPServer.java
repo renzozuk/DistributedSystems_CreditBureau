@@ -9,17 +9,20 @@ import java.net.Socket;
 public class HTTPServer extends Server {
     public HTTPServer(int port) {
         super(port);
+    }
 
+    public HTTPServer(String address, int port) {
+        super(address, port);
     }
 
     @Override
     public void startServer() {
-        System.out.println("Webserver started.");
+        System.out.printf("HTTP server started on port %d.\n", super.getPort());
 
         try (ServerSocket serverSocket = new ServerSocket(super.getPort())) {
             while (true) {
-                Socket remote = serverSocket.accept();
-                new Thread(new HTTPMessageHandler(remote)).start();
+                Socket socket = serverSocket.accept();
+                new Thread(new HTTPMessageHandler(socket)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();

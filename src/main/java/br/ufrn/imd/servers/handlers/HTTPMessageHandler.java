@@ -27,9 +27,9 @@ public class HTTPMessageHandler implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("\nHTTP Message Handler Started for " + this.socket);
+        System.out.println("\nHTTP Message Handler started for " + this.socket);
         handleRequest(this.socket);
-        System.out.println("HTTP Message Handler Terminated for " + this.socket + "\n");
+        System.out.println("HTTP Message Handler terminated for " + this.socket + "\n");
     }
 
     public void handleRequest(Socket socket) {
@@ -119,7 +119,7 @@ public class HTTPMessageHandler implements Runnable {
         String statusLine;
         String serverHeader = "Server: WebServer\r\n";
         String contentTypeHeader = "Content-Type: text/html\r\n";
-        try (DataOutputStream out = new DataOutputStream(socket.getOutputStream());) {
+        try (DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
             if (statusCode == 200) {
                 statusLine = "HTTP/1.0 200 OK" + "\r\n";
                 String contentLengthHeader = "Content-Length: " + responseString.length() + "\r\n";
@@ -164,8 +164,8 @@ public class HTTPMessageHandler implements Runnable {
                 out.writeBytes(statusLine);
                 out.writeBytes("\r\n");
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

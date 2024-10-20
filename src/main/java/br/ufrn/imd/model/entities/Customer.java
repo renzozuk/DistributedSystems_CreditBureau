@@ -1,6 +1,7 @@
 package br.ufrn.imd.model.entities;
 
-import br.ufrn.imd.model.entities.enums.Status;
+import br.ufrn.imd.model.entities.enums.CustomerStatus;
+import br.ufrn.imd.patterns.VersionedKey;
 
 import java.time.LocalDate;
 import java.util.NavigableMap;
@@ -77,7 +78,7 @@ public class Customer {
                 .append("Signup date: ").append(signupDate).append("\n");
 
         keyScore.forEach((key, value) -> result.append(key).append(": ")
-                .append("[Score: ").append(value.getFinalScore(this)).append(" (").append(Status.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
+                .append("[Score: ").append(value.getFinalScore(this)).append(" (").append(CustomerStatus.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
 
         result.append("========================================\n");
 
@@ -97,7 +98,7 @@ public class Customer {
                 .append("[Credit History Length Score: ").append(value.getCreditHistoryLengthScore(this)).append("] ")
                 .append("[Amount Score: ").append(value.getAmountScore()).append("] ")
                 .append("[Available Credit Score: ").append(value.getAvailableCreditScore()).append("] ")
-                .append("[Final Score: ").append(value.getFinalScore(this)).append(" (").append(Status.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
+                .append("[Final Score: ").append(value.getFinalScore(this)).append(" (").append(CustomerStatus.fromScore(value.getFinalScore(this)).toString().replace("_", " ")).append(")]\n"));
 
         result.append("========================================\n");
 

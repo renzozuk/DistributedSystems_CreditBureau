@@ -6,7 +6,7 @@ import br.ufrn.imd.model.dao.DaoFactory;
 import br.ufrn.imd.model.dao.ScoreDao;
 import br.ufrn.imd.model.entities.Customer;
 import br.ufrn.imd.model.entities.Score;
-import br.ufrn.imd.model.entities.VersionedKey;
+import br.ufrn.imd.patterns.VersionedKey;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
