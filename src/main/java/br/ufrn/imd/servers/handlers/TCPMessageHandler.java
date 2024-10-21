@@ -9,8 +9,21 @@ import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.stream.IntStream;
 
-public class TCPMessageHandler {
-    public static void handleRequest(Socket socket) {
+public class TCPMessageHandler implements Runnable {
+    private final Socket socket;
+
+    public TCPMessageHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("\nTCP Message Handler started for " + this.socket);
+        handleRequest(this.socket);
+        System.out.println("TCP Message Handler terminated for " + this.socket + "\n");
+    }
+
+    public void handleRequest(Socket socket) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
             StringTokenizer tokenizer = new StringTokenizer(br.readLine(), ";");
 

@@ -151,6 +151,10 @@ public class HTTPMessageHandler implements Runnable {
                 statusLine = "HTTP/1.0 409 Conflict" + "\r\n";
                 out.writeBytes(statusLine);
                 out.writeBytes("\r\n");
+            } else if (statusCode == 500) {
+                statusLine = "HTTP/1.0 500 Internal Server Error" + "\r\n";
+                out.writeBytes(statusLine);
+                out.writeBytes("\r\n");
             } else {
                 statusLine = "HTTP/1.0 404 Not Found" + "\r\n";
                 out.writeBytes(statusLine);

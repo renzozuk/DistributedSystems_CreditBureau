@@ -26,7 +26,7 @@ public class TCPServer extends Server {
 
             while (true) {
                 Socket socket = serverSocket.accept();
-                TCPMessageHandler.handleRequest(socket);
+                new Thread(new TCPMessageHandler(socket)).start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
