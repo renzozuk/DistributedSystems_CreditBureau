@@ -24,6 +24,7 @@ public class Main {
             case "gateway":
                 Gateway gateway = new Gateway(ProtocolType.valueOf(args[1].toUpperCase()));
                 gateway.startGateway(Integer.parseInt(args[2]));
+                break;
             case "server":
                 if (args.length == 3) {
                     Server server = ServerFactory.build(Integer.parseInt(args[2]), ProtocolType.valueOf(args[1].toUpperCase()));

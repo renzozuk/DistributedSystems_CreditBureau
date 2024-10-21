@@ -12,24 +12,26 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public class Heartbeat {
-    private static final String HEARTBEAT_MESSAGE = "Are you alive?";
+    public static final String HEARTBEAT_MESSAGE = "Are you alive?";
+    public static final String HEARTBEAT_SUCCESS_RESPONSE = "Yes, I'm alive!";
+    public static final String HEARTBEAT_FAIL_RESPONSE = "No response from server. It may be down.";
 //    private static final int TIMEOUT = 2000;
 
     public static void refreshServers(Set<Server> servers, int quantity) {
-        servers.removeIf(server -> !sendHeartbeatForUDP(server.getPort()).equals("Yes, I'm alive!"));
+        servers.removeIf(server -> !sendHeartbeatToUDPServer(server.getPort()).equals(HEARTBEAT_SUCCESS_RESPONSE));
 
         IntStream.range(9001, 9001 + quantity).forEach(i -> {
-            if (sendHeartbeatForUDP(i).equals("Yes, I'm alive!")) {
+            if (sendHeartbeatToUDPServer(i).equals("Yes, I'm alive!")) {
                 servers.add(new UDPServer(i));
             }
         });
     }
 
-    public static String sendHeartbeatForUDP(int port) {
-        return sendHeartbeatForUDP("localhost", port);
+    public static String sendHeartbeatToUDPServer(int port) {
+        return sendHeartbeatToUDPServer("localhost", port);
     }
 
-    public static String sendHeartbeatForUDP(String address, int port) {
+    public static String sendHeartbeatToUDPServer(String address, int port) {
         try (DatagramSocket socket = new DatagramSocket()) {
             try {
                 InetAddress serverAddress = InetAddress.getByName(address);
@@ -46,7 +48,7 @@ public class Heartbeat {
                         socket.receive(responsePacket);
                         return new String(responsePacket.getData(), 0, responsePacket.getLength());
                     } catch (Exception e) {
-                        return "No response from server. It may be down.";
+                        return HEARTBEAT_FAIL_RESPONSE;
                     }
 
                 } catch (Exception e) {
@@ -59,6 +61,6 @@ public class Heartbeat {
             throw new RuntimeException(e);
         }
 
-        return "No response from server. It may be down.";
+        return HEARTBEAT_FAIL_RESPONSE;
     }
 }

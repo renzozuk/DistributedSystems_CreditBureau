@@ -38,7 +38,6 @@ public class HTTPMessageHandler implements Runnable {
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
             if (httpMethod.equals("GET")) {
-                System.out.println("Get method processed");
                 String httpQueryString = tokenizer.nextToken();
                 String[] queryParameters = httpQueryString.split("/");
 
@@ -53,7 +52,6 @@ public class HTTPMessageHandler implements Runnable {
                     sendResponse(socket, 400, "Quantity of parameters is not enough.");
                 }
             } else if (httpMethod.equals("POST")) {
-                System.out.println("Post method processed");
                 String httpQueryString = tokenizer.nextToken();
                 String[] queryParameters = httpQueryString.split("/");
 
@@ -75,7 +73,6 @@ public class HTTPMessageHandler implements Runnable {
                     sendResponse(socket, 400, "Quantity of parameters is not enough.");
                 }
             } else if (httpMethod.equals("PUT")) {
-                System.out.println("Put method processed");
                 String httpQueryString = tokenizer.nextToken();
                 String[] queryParameters = httpQueryString.split("/");
 
@@ -90,7 +87,6 @@ public class HTTPMessageHandler implements Runnable {
                     sendResponse(socket, 400, "The score should be an integer.");
                 }
             } else if (httpMethod.equals("DELETE")) {
-                System.out.println("Delete method processed");
                 String httpQueryString = tokenizer.nextToken();
                 String[] queryParameters = httpQueryString.split("/");
 

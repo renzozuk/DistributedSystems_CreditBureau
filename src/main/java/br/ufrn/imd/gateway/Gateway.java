@@ -1,74 +1,67 @@
 package br.ufrn.imd.gateway;
 
+import br.ufrn.imd.clients.UDPClient;
 import br.ufrn.imd.model.entities.enums.ProtocolType;
 import br.ufrn.imd.patterns.Heartbeat;
 import br.ufrn.imd.servers.HTTPServer;
-import br.ufrn.imd.servers.Server;
 import br.ufrn.imd.servers.TCPServer;
-import br.ufrn.imd.servers.UDPServer;
 
-import java.util.HashSet;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketTimeoutException;
 import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import static br.ufrn.imd.patterns.Heartbeat.HEARTBEAT_SUCCESS_RESPONSE;
 
 public class Gateway {
     private final int GATEWAY_PORT = 8080;
     private final ProtocolType protocolType;
-    private Set<Server> servers;
 
     public Gateway(ProtocolType protocolType) {
         this.protocolType = protocolType;
-        servers = new HashSet<>();
     }
 
     public void startGateway(int quantity) {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        CountDownLatch latch = new CountDownLatch(1);
-
-        try {
-            switch (protocolType) {
-                case UDP:
-                    UDPServer udpServer = new UDPServer(GATEWAY_PORT);
-                    udpServer.start();
-                    break;
-                case TCP:
-                    TCPServer tcpServer = new TCPServer(GATEWAY_PORT);
-                    tcpServer.start();
-                    break;
-                case HTTP:
-                    HTTPServer httpServer = new HTTPServer(GATEWAY_PORT);
-                    httpServer.start();
-                    break;
-            }
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            latch.countDown();
+        switch (protocolType) {
+            case UDP:
+                startUDPListener(quantity);
+                break;
+            case TCP:
+                TCPServer tcpServer = new TCPServer(GATEWAY_PORT);
+                tcpServer.start();
+                break;
+            case HTTP:
+                HTTPServer httpServer = new HTTPServer(GATEWAY_PORT);
+                httpServer.start();
+                break;
         }
+    }
 
-        executor.submit(() -> {
-            try {
-                latch.await();
+    public void startUDPListener(int quantity) {
+        Random random = new Random();
 
-                while (true) {
-                    Heartbeat.refreshServers(servers, Math.min(1000, quantity));
-//                    System.out.printf("There are %d servers up.\n", servers.size());
-                    if (!servers.isEmpty()) {
-                        Random random = new Random();
+        try (DatagramSocket serverSocket = new DatagramSocket(8080)) {
 
+            while (true) {
+                byte[] receiveMessage = new byte[1024];
 
-                        System.out.printf("The server found was %d.\n", servers.stream().toList().get(random.nextInt(servers.size())).getPort());
-                    }
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                DatagramPacket receivePacket = new DatagramPacket(receiveMessage, receiveMessage.length);
+
+                serverSocket.receive(receivePacket);
+
+                int randomPort = random.nextInt(9001, 9001 + quantity);
+
+                String reply = Heartbeat.sendHeartbeatToUDPServer(randomPort).equals(HEARTBEAT_SUCCESS_RESPONSE) ? UDPClient.sendMessage(randomPort, new String(receivePacket.getData())) : "Error: Server is not alive.";
+
+                byte[] replyMessage = reply.getBytes();
+
+                DatagramPacket datagramPacket = new DatagramPacket(replyMessage, replyMessage.length, receivePacket.getAddress(), receivePacket.getPort());
+
+                serverSocket.send(datagramPacket);
             }
-        });
-
-        executor.close();
+        } catch (SocketTimeoutException ignored) {} catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
