@@ -7,7 +7,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -62,5 +67,31 @@ public class Heartbeat {
         }
 
         return HEARTBEAT_FAIL_RESPONSE;
+    }
+
+    public static String sendHeartbeatToHTTPServer(int port) {
+        return sendHeartbeatToHTTPServer("localhost", port);
+    }
+
+    public static String sendHeartbeatToHTTPServer(String address, int port) {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request;
+        try {
+            request = HttpRequest.newBuilder()
+                    .uri(new URI(String.format("http://%s:%d/heart", address, port)))
+                    .GET()
+                    .build();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            return HEARTBEAT_FAIL_RESPONSE;
+        }
+
+        return response.body().equals("beat") ? HEARTBEAT_SUCCESS_RESPONSE : "Unexpected response.";
     }
 }

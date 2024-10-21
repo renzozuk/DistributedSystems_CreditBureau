@@ -37,24 +37,26 @@ public class HTTPMessageHandler implements Runnable {
             String headerLine = in.readLine();
             StringTokenizer tokenizer = new StringTokenizer(headerLine);
             String httpMethod = tokenizer.nextToken();
+
+            String httpQueryString = tokenizer.nextToken();
+            String[] queryParameters = httpQueryString.split("/");
+
             if (httpMethod.equals("GET")) {
-                String httpQueryString = tokenizer.nextToken();
-                String[] queryParameters = httpQueryString.split("/");
+                if (queryParameters[1].equals("heart")) {
+                    sendResponse(socket, 200, "beat");
+                } else {
+                    try {
+                        Customer customer = customerDao.findBySsn(queryParameters[1]);
+                        customer.updateScores(scoreDao.findByCustomerSsn(queryParameters[1]));
 
-                try {
-                    Customer customer = customerDao.findBySsn(queryParameters[1]);
-                    customer.updateScores(scoreDao.findByCustomerSsn(queryParameters[1]));
-
-                    sendResponse(socket, 200, String.valueOf(customer));
-                } catch (NullPointerException e) {
-                    sendResponse(socket, 404, "Customer not found.");
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    sendResponse(socket, 400, "Quantity of parameters is not enough.");
+                        sendResponse(socket, 200, String.valueOf(customer));
+                    } catch (NullPointerException e) {
+                        sendResponse(socket, 404, "Customer not found.");
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        sendResponse(socket, 400, "Quantity of parameters is not enough.");
+                    }
                 }
             } else if (httpMethod.equals("POST")) {
-                String httpQueryString = tokenizer.nextToken();
-                String[] queryParameters = httpQueryString.split("/");
-
                 try {
                     if (queryParameters.length >= 3) {
                         try {
@@ -73,9 +75,6 @@ public class HTTPMessageHandler implements Runnable {
                     sendResponse(socket, 400, "Quantity of parameters is not enough.");
                 }
             } else if (httpMethod.equals("PUT")) {
-                String httpQueryString = tokenizer.nextToken();
-                String[] queryParameters = httpQueryString.split("/");
-
                 try {
                     scoreDao.insert(queryParameters[1], new Score(Integer.parseInt(queryParameters[2]), Integer.parseInt(queryParameters[3]), Integer.parseInt(queryParameters[4]), Integer.parseInt(queryParameters[5])));
                     sendResponse(socket, 200, "Customer score updated successfully.");
@@ -87,9 +86,6 @@ public class HTTPMessageHandler implements Runnable {
                     sendResponse(socket, 400, "The score should be an integer.");
                 }
             } else if (httpMethod.equals("DELETE")) {
-                String httpQueryString = tokenizer.nextToken();
-                String[] queryParameters = httpQueryString.split("/");
-
                 try {
                     customerDao.deleteBySsn(queryParameters[1]);
                 } catch (ArrayIndexOutOfBoundsException e) {
@@ -111,7 +107,7 @@ public class HTTPMessageHandler implements Runnable {
         }
     }
 
-    public void sendResponse(Socket socket, int statusCode, String responseString) {
+    public static void sendResponse(Socket socket, int statusCode, String responseString) {
         String statusLine;
         String serverHeader = "Server: WebServer\r\n";
         String contentTypeHeader = "Content-Type: text/html\r\n";
