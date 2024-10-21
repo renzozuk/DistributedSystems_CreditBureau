@@ -13,6 +13,10 @@ public class HTTPServer extends Server {
 
     public HTTPServer(String address, int port) {
         super(address, port);
+
+        if (port != 8080 && (port < 11001 || port > 12000)) {
+            throw new IllegalArgumentException("Invalid port number. The port number must be between 11001 and 12000.");
+        }
     }
 
     @Override

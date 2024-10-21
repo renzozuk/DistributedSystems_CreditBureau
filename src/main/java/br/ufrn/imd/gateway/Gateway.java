@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Gateway {
+    private final int GATEWAY_PORT = 8080;
     private final ProtocolType protocolType;
     private Set<Server> servers;
 
@@ -28,17 +29,17 @@ public class Gateway {
         CountDownLatch latch = new CountDownLatch(1);
 
         try {
-            switch (this.protocolType) {
+            switch (protocolType) {
                 case UDP:
-                    UDPServer udpServer = new UDPServer(8080);
+                    UDPServer udpServer = new UDPServer(GATEWAY_PORT);
                     udpServer.start();
                     break;
                 case TCP:
-                    TCPServer tcpServer = new TCPServer(8080);
+                    TCPServer tcpServer = new TCPServer(GATEWAY_PORT);
                     tcpServer.start();
                     break;
                 case HTTP:
-                    HTTPServer httpServer = new HTTPServer(8080);
+                    HTTPServer httpServer = new HTTPServer(GATEWAY_PORT);
                     httpServer.start();
                     break;
             }
@@ -58,6 +59,8 @@ public class Gateway {
 //                    System.out.printf("There are %d servers up.\n", servers.size());
                     if (!servers.isEmpty()) {
                         Random random = new Random();
+
+
                         System.out.printf("The server found was %d.\n", servers.stream().toList().get(random.nextInt(servers.size())).getPort());
                     }
                 }

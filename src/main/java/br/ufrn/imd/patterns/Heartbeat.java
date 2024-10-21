@@ -13,23 +13,23 @@ import java.util.stream.IntStream;
 
 public class Heartbeat {
     private static final String HEARTBEAT_MESSAGE = "Are you alive?";
-    private static final int TIMEOUT = 2000;
+//    private static final int TIMEOUT = 2000;
 
     public static void refreshServers(Set<Server> servers, int quantity) {
-        servers.removeIf(server -> !sendHeartbeat(server.getPort()).equals("Yes, I'm alive!"));
+        servers.removeIf(server -> !sendHeartbeatForUDP(server.getPort()).equals("Yes, I'm alive!"));
 
         IntStream.range(9001, 9001 + quantity).forEach(i -> {
-            if (sendHeartbeat(i).equals("Yes, I'm alive!")) {
+            if (sendHeartbeatForUDP(i).equals("Yes, I'm alive!")) {
                 servers.add(new UDPServer(i));
             }
         });
     }
 
-    public static String sendHeartbeat(int port) {
-        return sendHeartbeat("localhost", port);
+    public static String sendHeartbeatForUDP(int port) {
+        return sendHeartbeatForUDP("localhost", port);
     }
 
-    public static String sendHeartbeat(String address, int port) {
+    public static String sendHeartbeatForUDP(String address, int port) {
         try (DatagramSocket socket = new DatagramSocket()) {
             try {
                 InetAddress serverAddress = InetAddress.getByName(address);

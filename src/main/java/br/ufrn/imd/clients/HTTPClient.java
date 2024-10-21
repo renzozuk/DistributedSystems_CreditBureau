@@ -1,11 +1,10 @@
 package br.ufrn.imd.clients;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Scanner;
 
 public class HTTPClient extends Client {
     public HTTPClient(int port) {
@@ -18,40 +17,60 @@ public class HTTPClient extends Client {
 
     @Override
     public void startClient() {
-        System.out.printf("HTTP Client started on port %d.", super.getPort());
+        System.out.printf("HTTP Client started on port %d.\n", super.getPort());
 
         try {
-            InetAddress serverInetAddress = InetAddress.getByName("localhost");
-            Socket connection = new Socket(serverInetAddress, super.getPort());
-            try (OutputStream out = connection.getOutputStream();
-                 BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                sendGet(out);
-                System.out.println(getResponse(in));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            HttpClient client = HttpClient.newHttpClient();
 
-    private void sendGet(OutputStream out) {
-        try {
-            out.write("GET /default\r\n".getBytes());
-            out.write("User-Agent: Mozilla/5.0\r\n".getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private String getResponse(BufferedReader in) {
-        try {
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine).append("\n");
+            Scanner sc = new Scanner(System.in);
+
+            while (true) {
+                System.out.print("Your command: ");
+                String message = sc.nextLine();
+                String[] parameters = message.split(";");
+
+                HttpRequest request = null;
+
+                if (parameters[0].equalsIgnoreCase("quit")) {
+                    client.close();
+                    sc.close();
+                    break;
+                }
+
+                switch (parameters[0].toLowerCase()) {
+                    case "get":
+                        request = HttpRequest.newBuilder()
+                                .uri(new URI(String.format("http://%s:%d%s", super.getAddress(), super.getPort(), parameters[1])))
+                                .GET()
+                                .build();
+                        break;
+                    case "post":
+                        request = HttpRequest.newBuilder()
+                                .uri(new URI(String.format("http://%s:%d%s", super.getAddress(), super.getPort(), parameters[1])))
+                                .POST(HttpRequest.BodyPublishers.noBody())
+                                .build();
+                        break;
+                    case "put":
+                        request = HttpRequest.newBuilder()
+                                .uri(new URI(String.format("http://%s:%d%s", super.getAddress(), super.getPort(), parameters[1])))
+                                .PUT(HttpRequest.BodyPublishers.noBody())
+                                .build();
+                        break;
+                    case "delete":
+                        request = HttpRequest.newBuilder()
+                                .uri(new URI(String.format("http://%s:%d%s", super.getAddress(), super.getPort(), parameters[1])))
+                                .DELETE()
+                                .build();
+                        break;
+                }
+
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                System.out.println("Response Code: " + response.statusCode());
+                System.out.println(response.body());
             }
-            return response.toString();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return "";
     }
 }

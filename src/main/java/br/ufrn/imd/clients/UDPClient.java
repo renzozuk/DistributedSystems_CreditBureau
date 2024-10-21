@@ -56,8 +56,12 @@ public class UDPClient extends Client {
     }
 
     public static String sendMessage(int port, String message) {
+        return sendMessage("localhost", port, message);
+    }
+
+    public static String sendMessage(String address, int port, String message) {
         try (DatagramSocket clientSocket = new DatagramSocket()) {
-            InetAddress inetAddress = InetAddress.getByName("localhost");
+            InetAddress inetAddress = InetAddress.getByName(address);
 
             byte[] sendMessage = message.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(sendMessage, sendMessage.length, inetAddress, port);

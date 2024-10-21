@@ -13,6 +13,10 @@ public class TCPServer extends Server {
 
     public TCPServer(String address, int port) {
         super(address, port);
+
+        if (port != 8080 && (port < 10001 || port > 11000)) {
+            throw new IllegalArgumentException("Invalid port number. The port number must be between 10001 and 11000.");
+        }
     }
 
     @Override
@@ -23,7 +27,9 @@ public class TCPServer extends Server {
             while (true) {
                 Socket socket = serverSocket.accept();
 
-                new Thread(new TCPMessageHandler(socket)).start();
+                TCPMessageHandler.handleRequest(socket);
+
+                socket.close();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
